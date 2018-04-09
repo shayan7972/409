@@ -109,6 +109,43 @@ public class DBHelper {
  	    return courselist;
     }
     
+    public int get_grade(int assignment_id, int course_id, int student_id) throws SQLException {
+    	String query = "select assignment_grade from grade where student_id =?, course_id = ?, assignment_id = ?";
+    	PreparedStatement pst = connection.prepareStatement(query);
+    	pst.setInt(1, student_id);
+    	pst.setInt(2, course_id);
+    	pst.setInt(3, assignment_id);
+    	ResultSet rs = pst.executeQuery();
+		return rs.getInt("assignment_grade");
+    }
+    
+    
+    public ArrayList<Course> student_courses(int student_id) throws SQLException {
+    	ArrayList<Course> stucourselist = new ArrayList<Course>();
+    	String query = "select course_id from studentenrollment where student_id =?";
+    	PreparedStatement pst = connection.prepareStatement(query);
+    	pst.setInt(1, student_id);
+ 	    ResultSet rs = pst.executeQuery();
+ 	    while (rs.next())
+        {
+         int id = rs.getInt("course_id");
+         String query2 = "select * from course where id =?";
+     	 PreparedStatement pst2 = connection.prepareStatement(query2);
+     	 pst2.setInt(1, id);
+  	     ResultSet rs2 = pst.executeQuery();
+  	     while (rs2.next()) {
+  	         String name = rs2.getString("name");
+  	         int prof_id = rs2.getInt("prof_id");
+  	         boolean is_active = rs2.getBoolean("active");
+  	         Course course = new Course(id,prof_id,name,is_active);
+  	         stucourselist.add(course);
+  	     }
+        }
+ 	    return stucourselist;
+    }
+    
+    
+    
     public ArrayList<Course> allactivecourses() throws SQLException {
     	ArrayList<Course> courselist = new ArrayList<Course>();
     	String query = "select * from course where active=true";
@@ -302,6 +339,8 @@ public class DBHelper {
 			e.printStackTrace();
 		}
 	}
+    
+    
 
     public void fillTables() throws SQLException {
 
